@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 
 // Use the same port as your server
 const SOCKET_URL = process.env.NODE_ENV === 'production'
-    ? window.location.origin
+    ? 'https://neo-auction.onrender.com'
     : 'https://neo-auction.onrender.com';
 
 console.log('Connecting to Socket.IO server:', SOCKET_URL);
