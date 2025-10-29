@@ -47,8 +47,6 @@ const seedData = async () => {
             { name: 'Team Beta', owner: 'owner2' },
             { name: 'Team Gamma', owner: 'owner3' },
             { name: 'Team Delta', owner: 'owner4' },
-            { name: 'Team Epsilon', owner: 'owner5' },
-            { name: 'Team Zeta', owner: 'owner6' }
         ];
 
         const createdTeams = [];
@@ -64,7 +62,7 @@ const seedData = async () => {
             const team = await Team.create({
                 name: teamData.name,
                 owner: ownerUser._id,
-                budget: 3000000
+                budget: 25000
             });
 
             ownerUser.team = team._id;
@@ -75,17 +73,38 @@ const seedData = async () => {
 
         // Create players
         const playersData = [
-            { name: 'John Smith', position: 'QB', basePrice: 2000000 },
-            { name: 'Mike Johnson', position: 'RB', basePrice: 250000 },
-            { name: 'Chris Davis', position: 'WR', basePrice: 200000 },
-            { name: 'David Wilson', position: 'TE', basePrice: 250000 },
-            { name: 'James Brown', position: 'OL', basePrice: 200000 },
-            { name: 'Robert Taylor', position: 'DL', basePrice: 200000 },
-            { name: 'Michael Clark', position: 'LB', basePrice: 250000 },
-            { name: 'Daniel White', position: 'DB', basePrice: 300000 },
-            { name: 'Paul Anderson', position: 'QB', basePrice: 450000 },
-            { name: 'Kevin Martin', position: 'RB', basePrice: 100000 }
+            { name: 'Aarav Patel', position: 'QB', basePrice: 1500 },
+            { name: 'Rohan Mehta', position: 'RB', basePrice: 500 },
+            { name: 'Vikram Singh', position: 'WR', basePrice: 2000 },
+            { name: 'Karan Sharma', position: 'TE', basePrice: 1000 },
+            { name: 'Dev Malhotra', position: 'OL', basePrice: 1500 },
+            { name: 'Amit Kumar', position: 'DL', basePrice: 1000 },
+            { name: 'Nikhil Bansal', position: 'LB', basePrice: 500 },
+            { name: 'Arjun Nair', position: 'DB', basePrice: 1500 },
+            { name: 'Manav Joshi', position: 'QB', basePrice: 2000 },
+            { name: 'Sahil Khanna', position: 'RB', basePrice: 1000 },
+            { name: 'Tushar Kapoor', position: 'WR', basePrice: 500 },
+            { name: 'Rahul Verma', position: 'TE', basePrice: 2000 },
+            { name: 'Ankit Sinha', position: 'OL', basePrice: 1500 },
+            { name: 'Ritesh Iyer', position: 'DL', basePrice: 1000 },
+            { name: 'Neel Raj', position: 'LB', basePrice: 2000 },
+            { name: 'Ishan Gupta', position: 'DB', basePrice: 500 },
+            { name: 'Yash Tiwari', position: 'QB', basePrice: 1500 },
+            { name: 'Ravi Chawla', position: 'RB', basePrice: 2000 },
+            { name: 'Sameer Desai', position: 'WR', basePrice: 1000 },
+            { name: 'Pranav Reddy', position: 'TE', basePrice: 500 },
+            { name: 'Kunal Jain', position: 'OL', basePrice: 1500 },
+            { name: 'Harsh Goel', position: 'DL', basePrice: 2000 },
+            { name: 'Mitesh Agarwal', position: 'LB', basePrice: 1000 },
+            { name: 'Aditya Rao', position: 'DB', basePrice: 1500 },
+            { name: 'Rajeev Menon', position: 'QB', basePrice: 2000 },
+            { name: 'Tanmay Dutta', position: 'RB', basePrice: 1000 },
+            { name: 'Deepak Pillai', position: 'WR', basePrice: 500 },
+            { name: 'Sandeep Ghosh', position: 'TE', basePrice: 1500 },
+            { name: 'Mohit Das', position: 'OL', basePrice: 2000 },
+            { name: 'Parth Sharma', position: 'DL', basePrice: 500 }
         ];
+
 
         await Player.insertMany(playersData);
 

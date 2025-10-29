@@ -8,12 +8,12 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'https://neo-auction.onrender.com',
+        target: 'https://neo-auction-1.onrender.com',
         changeOrigin: true,
         secure: false,
       },
       '/socket.io': {
-        target: 'https://neo-auction.onrender.com',
+        target: 'https://neo-auction-1.onrender.com',
         changeOrigin: true,
         secure: false,
         ws: true,
