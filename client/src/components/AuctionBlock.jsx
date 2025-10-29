@@ -12,20 +12,7 @@ const AuctionBlock = () => {
     (auctionState.lastAction.type === 'sold' ||
       auctionState.lastAction.type === 'unsold');
 
-  if (!auctionState.lastAction.playerId) {
-    return (
-      <div className="bg-white rounded-lg md:rounded-2xl shadow-lg md:shadow-2xl p-4 md:p-8 border border-gray-100 mx-2 md:mx-0">
-        <div className="text-center">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-700 mb-3 md:mb-4">Auction Block</h2>
 
-          <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl md:rounded-2xl p-4 md:p-8 border-2 border-dashed border-gray-300">
-            <p className="text-lg md:text-xl text-gray-600 mb-2">No player currently on the block</p>
-            <p className="text-gray-500 text-base md:text-lg">Waiting for admin to send a player to auction...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // If no current player but we have a recent result, show the result
   if (!auctionState?.currentPlayer && hasRecentResult) {
@@ -88,6 +75,23 @@ const AuctionBlock = () => {
                 ⏳ Waiting for next player...
               </p>
             </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!auctionState?.currentPlayer) {
+      return (
+        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+          <h2 className="text-2xl font-bold text-gray-600 mb-4">Auction Block</h2>
+          <div className="bg-gray-50 rounded-lg p-8">
+            <div className="text-gray-400 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <p className="text-gray-500 text-lg">No player currently on the block</p>
+            <p className="text-gray-400 text-sm mt-2">Waiting for admin to send a player to auction...</p>
           </div>
         </div>
       );
