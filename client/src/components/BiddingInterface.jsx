@@ -122,10 +122,10 @@ const BiddingInterface = () => {
   const suggestedBids = isFirstBid
     ? [currentPlayer.basePrice]
     : [
-      currentBid + 10000,
-      currentBid + 25000,
-      currentBid + 50000,
-      currentBid + 100000
+      currentBid + 500,
+      currentBid + 1000,
+      currentBid + 1500,
+      currentBid + 2000
     ].filter(amount => amount <= (myTeam?.budget || 0));
 
   // Don't show if no team, auction not running, or no player
@@ -288,7 +288,7 @@ const BiddingInterface = () => {
                     onChange={(e) => setBidAmount(e.target.value)}
                     placeholder={isFirstBid
                       ? `Base Price: $${currentPlayer.basePrice.toLocaleString()}`
-                      : `Minimum: $${(currentBid + 1000).toLocaleString()}`
+                      : `Minimum: $${(currentBid + 100).toLocaleString()}`
                     }
                     className="w-full border-2 border-gray-300 bg-white rounded-xl pl-8 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     min={isFirstBid ? currentPlayer.basePrice : currentBid + 1000}
