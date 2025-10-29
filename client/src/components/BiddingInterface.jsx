@@ -291,7 +291,7 @@ const BiddingInterface = () => {
                       : `Minimum: $${(currentBid + 100).toLocaleString()}`
                     }
                     className="w-full border-2 border-gray-300 bg-white rounded-xl pl-8 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    min={isFirstBid ? currentPlayer.basePrice : currentBid + 1000}
+                    min={isFirstBid ? currentPlayer.basePrice : currentBid + 100}
                     max={myTeam.budget}
                   />
                 </div>
@@ -304,7 +304,7 @@ const BiddingInterface = () => {
                     !bidAmount ||
                     parseInt(bidAmount) > myTeam.budget ||
                     (isFirstBid && parseInt(bidAmount) !== currentPlayer.basePrice) ||
-                    (!isFirstBid && parseInt(bidAmount) <= currentBid)
+                    (!isFirstBid && parseInt(bidAmount) <= currentBid) || (!isFirstBid && bidAmount < currentBid + 100)
                   }
                   className="bg-linear-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-xl font-semibold text-sm hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
                 >
@@ -350,7 +350,7 @@ const BiddingInterface = () => {
                 <p className="text-yellow-800 font-semibold text-sm">
                   {isFirstBid
                     ? `First bid must be exactly at base price: $${currentPlayer.basePrice.toLocaleString()}`
-                    : `Bid must be higher than current bid: $${(currentBid + 1000).toLocaleString()}`
+                    : `Bid must be 100 higher than current bid: $${(currentBid + 100).toLocaleString()}`
                   }
                 </p>
               </div>

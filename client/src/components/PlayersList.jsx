@@ -206,7 +206,7 @@ const PlayersList = () => {
           <div className={`p-4 sm:p-6 text-white ${statusConfig.class}`}>
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2 sm:space-x-3">
-                <div className="text-xl sm:text-2xl">{statusConfig.icon}</div>
+                <div className="hidden sm:block text-xl sm:text-2xl">{statusConfig.icon}</div>
                 <div>
                   <h3 className="text-lg sm:text-xl font-bold">{statusConfig.label} Players</h3>
                   <p className="text-white text-opacity-90 text-xs sm:text-sm">
@@ -219,10 +219,10 @@ const PlayersList = () => {
                 {/* CSV Export Button - Show for all statuses */}
                 <button
                   onClick={() => exportToCSV(players, status)}
-                  className="bg-white text-green-700 py-1 px-2 sm:py-2 sm:px-4 rounded text-xs sm:text-sm font-semibold hover:bg-green-50 transition-all flex items-center space-x-1 sm:space-x-2"
+                  className="bg-white text-green-700 py-1 px-2 sm:py-2 sm:px-4 rounded text-xs sm:text-sm font-semibold hover:bg-green-50 transition-all flex items-center space-x-1 sm:space-x-2 cursor-pointer"
                 >
                   <span>📊</span>
-                  <span className="hidden xs:inline">Export</span>
+                  <span className="hidden sm:inline">Export</span>
                 </button>
                 <button
                   onClick={onClose}
