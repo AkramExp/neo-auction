@@ -11,31 +11,12 @@ const PlayersList = () => {
   const { players, teams } = state;
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(null);
-  const [filteredPlayers, setFilteredPlayers] = useState([]);
+
   const [filterPosition, setFilterPosition] = useState("");
 
-  useEffect(() => {
-    if (players) {
-      setFilteredPlayers(players)
-    }
-  }, [players])
 
-  useEffect(() => {
-    const newPlayers = players.filter(player => player.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    let filterPlayers = newPlayers;
 
-    if (filterPosition !== "")
-      filterPlayers = newPlayers.filter(player => player.position.toLowerCase().includes(filterPosition.toLowerCase()));
-
-    if (filterPosition === 'br') {
-      filterPlayers = newPlayers.filter(
-        player => player.position.toLowerCase().includes("libero") || player.position.toLowerCase().includes("ts")
-      );
-    }
-
-    setFilteredPlayers(filterPlayers);
-  }, [searchQuery, filterPosition])
 
   const getStatusConfig = (status) => {
     switch (status) {
@@ -141,6 +122,24 @@ const PlayersList = () => {
 
   const PlayersTablePopup = ({ status, players, onClose }) => {
     const statusConfig = getStatusConfig(status);
+    const [filteredPlayers, setFilteredPlayers] = useState(players || []);
+
+    useEffect(() => {
+      const newPlayers = players.filter(player => player.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      let filterPlayers = newPlayers;
+
+      if (filterPosition !== "")
+        filterPlayers = newPlayers.filter(player => player.position.toLowerCase().includes(filterPosition.toLowerCase()));
+
+      if (filterPosition === 'br') {
+        filterPlayers = newPlayers.filter(
+          player => player.position.toLowerCase().includes("libero") || player.position.toLowerCase().includes("ts")
+        );
+      }
+
+      setFilteredPlayers(filterPlayers);
+    }, [searchQuery, filterPosition])
 
     const TableHeader = () => (
       <thead className="bg-gray-50">
@@ -276,7 +275,7 @@ const PlayersList = () => {
           </div>
           {/* Table Container with Horizontal Scroll */}
           <div className="p-2 sm:p-6 overflow-auto h-[calc(90vh-170px)] sm:h-[calc(90vh-200px)] flex-1">
-            {players.length > 0 ? (
+            {filteredPlayers.length > 0 ? (
               <div className="border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
