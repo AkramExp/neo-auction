@@ -7,15 +7,22 @@ const PlayerManagement = () => {
     const { state } = useAuction();
     const { user } = useAuth();
     const socket = useSocket();
-
     const { players } = state;
     const [showForm, setShowForm] = useState(false);
     const [editingPlayer, setEditingPlayer] = useState(null);
+    const [selectedPositions, setSelectedPositions] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
-        position: '',
         basePrice: ''
     });
+
+    const positionOptions = [
+        { value: 'Setter', label: 'Setter' },
+        { value: 'RW', label: 'RW' },
+        { value: 'LW', label: 'LW' },
+        { value: 'TS', label: 'TS' },
+        { value: 'Libero', label: 'Libero' }
+    ];
 
     if (user?.role !== 'admin') {
         return null;
@@ -23,7 +30,8 @@ const PlayerManagement = () => {
 
     const handleAddPlayer = () => {
         setEditingPlayer(null);
-        setFormData({ name: '', position: '', basePrice: '' });
+        setFormData({ name: '', basePrice: '' });
+        setSelectedPositions([]);
         setShowForm(true);
     };
 
@@ -31,9 +39,11 @@ const PlayerManagement = () => {
         setEditingPlayer(player);
         setFormData({
             name: player.name,
-            position: player.position,
             basePrice: player.basePrice.toString()
         });
+        // Convert position string back to array
+        const positionsArray = player.position.split(',').map(pos => pos.trim());
+        setSelectedPositions(positionsArray);
         setShowForm(true);
     };
 
@@ -43,17 +53,30 @@ const PlayerManagement = () => {
         }
     };
 
+    const handlePositionChange = (positionValue) => {
+        setSelectedPositions(prev => {
+            if (prev.includes(positionValue)) {
+                return prev.filter(pos => pos !== positionValue);
+            } else {
+                return [...prev, positionValue];
+            }
+        });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.position || !formData.basePrice) {
+        if (!formData.name || selectedPositions.length === 0 || !formData.basePrice) {
             alert('Please fill in all fields');
             return;
         }
 
+        // Convert positions array to comma-separated string without spaces
+        const positionString = selectedPositions.join(',');
+
         const playerData = {
             name: formData.name,
-            position: formData.position,
+            position: positionString,
             basePrice: parseInt(formData.basePrice)
         };
 
@@ -67,42 +90,51 @@ const PlayerManagement = () => {
         }
 
         setShowForm(false);
-        setFormData({ name: '', position: '', basePrice: '' });
+        setFormData({ name: '', basePrice: '' });
+        setSelectedPositions([]);
         setEditingPlayer(null);
     };
 
     const handleCancel = () => {
         setShowForm(false);
-        setFormData({ name: '', position: '', basePrice: '' });
+        setFormData({ name: '', basePrice: '' });
+        setSelectedPositions([]);
         setEditingPlayer(null);
     };
 
     const playerGroups = {
-        upcoming: players.filter(p => p.status === 'upcoming'),
-        sold: players.filter(p => p.status === 'sold'),
-        unsold: players.filter(p => p.status === 'unsold')
+        upcoming: players
+            .filter(p => p.status === 'upcoming')
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+        sold: players
+            .filter(p => p.status === 'sold')
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+        unsold: players
+            .filter(p => p.status === 'unsold')
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     };
+
 
     const getStatusConfig = (status) => {
         switch (status) {
             case 'sold':
                 return {
-                    class: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
+                    class: 'bg-linear-to-br from-green-500 to-emerald-600 text-white',
                     icon: '✅'
                 };
             case 'unsold':
                 return {
-                    class: 'bg-gradient-to-r from-red-500 to-pink-600 text-white',
+                    class: 'bg-linear-to-br from-red-500 to-pink-600 text-white',
                     icon: '⏹️'
                 };
             case 'upcoming':
                 return {
-                    class: 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white',
+                    class: 'bg-linear-to-br from-blue-500 to-cyan-600 text-white',
                     icon: '⏳'
                 };
             default:
                 return {
-                    class: 'bg-gradient-to-r from-gray-500 to-gray-600 text-white',
+                    class: 'bg-linear-to-br from-gray-500 to-gray-600 text-white',
                     icon: '❓'
                 };
         }
@@ -118,7 +150,7 @@ const PlayerManagement = () => {
                 </div>
                 <button
                     onClick={handleAddPlayer}
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    className="bg-linear-to-br from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                 >
                     Add New Player
                 </button>
@@ -126,9 +158,8 @@ const PlayerManagement = () => {
 
             {/* Add/Edit Player Form */}
             {showForm && (
-                <div className="mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                <div className="mb-8 bg-linear-to-brs from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
                     <div className="flex items-center space-x-3 mb-4">
-
                         <div>
                             <h4 className="font-bold text-gray-900 text-lg">
                                 {editingPlayer ? 'Edit Player' : 'Add New Player'}
@@ -150,22 +181,31 @@ const PlayerManagement = () => {
                                     placeholder="Enter player name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    className="w-full border bg-white border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     required
                                 />
                             </div>
-                            <div>
+                            <div className="">
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Position
+                                    Position(s)
                                 </label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g., QB, RB, WR"
-                                    value={formData.position}
-                                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                    required
-                                />
+                                <div className="space-y-3">
+                                    <div className="flex flex-wrap gap-2 items-center">
+                                        {positionOptions.map((position) => (
+                                            <button
+                                                key={position.value}
+                                                type="button"
+                                                onClick={() => handlePositionChange(position.value)}
+                                                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 hover:scale-105 cursor-pointer border ${selectedPositions.includes(position.value)
+                                                    ? 'bg-linear-to-br from-blue-500 to-purple-600 text-white border-transparent shadow-lg'
+                                                    : 'bg-white text-zinc-800 border-gray-300 hover:border-blue-500 hover:shadow-md'
+                                                    }`}
+                                            >
+                                                {position.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -176,7 +216,7 @@ const PlayerManagement = () => {
                                     placeholder="Enter base price"
                                     value={formData.basePrice}
                                     onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
-                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    className="w-full border bg-white border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     min="0"
                                     required
                                 />
@@ -185,14 +225,14 @@ const PlayerManagement = () => {
                         <div className="flex space-x-3">
                             <button
                                 type="submit"
-                                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                                className="bg-linear-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                             >
                                 {editingPlayer ? 'Update Player' : 'Add Player'}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleCancel}
-                                className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                                className="bg-linear-to-br from-gray-500 to-gray-600 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                             >
                                 Cancel
                             </button>
@@ -207,7 +247,7 @@ const PlayerManagement = () => {
                     const statusConfig = getStatusConfig(status);
 
                     return (
-                        <div key={status} className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 max-h-[20rem] overflow-y-auto">
+                        <div key={status} className="bg-linear-to-brs from-gray-50 to-white rounded-2xl p-6 border border-gray-200 max-h-80 overflow-y-auto">
                             {/* Section Header */}
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center space-x-3">
@@ -237,9 +277,6 @@ const PlayerManagement = () => {
                                                     <div>
                                                         <h5 className="font-bold text-gray-900 text-lg">{player.name}</h5>
                                                     </div>
-                                                    {/* <span className={`text-xs px-3 py-1.5 rounded-full font-bold ${statusConfig.class}`}>
-                                                        {status}
-                                                    </span> */}
                                                     <p className="text-gray-600 text-sm">{player.position}</p>
                                                 </div>
 
@@ -262,8 +299,8 @@ const PlayerManagement = () => {
                                                     <button
                                                         onClick={() => handleEditPlayer(player)}
                                                         disabled={!canEditDelete}
-                                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 ${canEditDelete
-                                                            ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:shadow-lg'
+                                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 cursor-pointer ${canEditDelete
+                                                            ? 'bg-linear-to-br from-yellow-500 to-amber-600 text-white hover:shadow-lg'
                                                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                             }`}
                                                     >
@@ -272,8 +309,8 @@ const PlayerManagement = () => {
                                                     <button
                                                         onClick={() => handleDeletePlayer(player._id, player.name)}
                                                         disabled={!canEditDelete}
-                                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 ${canEditDelete
-                                                            ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:shadow-lg'
+                                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 cursor-pointer ${canEditDelete
+                                                            ? 'bg-linear-to-br from-red-500 to-pink-600 text-white hover:shadow-lg'
                                                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                             }`}
                                                     >
@@ -286,7 +323,6 @@ const PlayerManagement = () => {
                                 </div>
                             ) : (
                                 <div className="text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-
                                     <p className="text-gray-500 font-medium">No {status} players</p>
                                     <p className="text-gray-400 text-sm mt-1">
                                         {status === 'upcoming' ? 'Add players to see them here' :

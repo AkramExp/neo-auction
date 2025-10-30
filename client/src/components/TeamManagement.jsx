@@ -92,7 +92,7 @@ const TeamManagement = () => {
                 </div>
                 <button
                     onClick={handleAddTeam}
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                 >
                     Add New Team
                 </button>
@@ -144,14 +144,14 @@ const TeamManagement = () => {
                         <div className="flex space-x-3">
                             <button
                                 type="submit"
-                                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                             >
                                 {editingTeam ? 'Update Team' : 'Add Team'}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleCancel}
-                                className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+                                className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                             >
                                 Cancel
                             </button>

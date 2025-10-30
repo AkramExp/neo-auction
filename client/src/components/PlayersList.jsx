@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuction } from '../context/AuctionContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSocket } from '../context/SocketContext.jsx';
@@ -9,7 +9,33 @@ const PlayersList = () => {
   const socket = useSocket();
 
   const { players, teams } = state;
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(null);
+  const [filteredPlayers, setFilteredPlayers] = useState([]);
+  const [filterPosition, setFilterPosition] = useState("");
+
+  useEffect(() => {
+    if (players) {
+      setFilteredPlayers(players)
+    }
+  }, [players])
+
+  useEffect(() => {
+    const newPlayers = players.filter(player => player.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    let filterPlayers = newPlayers;
+
+    if (filterPosition !== "")
+      filterPlayers = newPlayers.filter(player => player.position.toLowerCase().includes(filterPosition.toLowerCase()));
+
+    if (filterPosition === 'br') {
+      filterPlayers = newPlayers.filter(
+        player => player.position.toLowerCase().includes("libero") || player.position.toLowerCase().includes("ts")
+      );
+    }
+
+    setFilteredPlayers(filterPlayers);
+  }, [searchQuery, filterPosition])
 
   const getStatusConfig = (status) => {
     switch (status) {
@@ -160,9 +186,11 @@ const PlayersList = () => {
 
           {/* Position */}
           <td className="px-4 py-3 whitespace-nowrap min-w-[100px]">
-            <span className={`inline-flex text-xs px-2 py-1 rounded-full border ${roleColor} font-medium capitalize`}>
-              {player.position || 'Player'}
-            </span>
+            <div className='flex items-center gap-2'>
+              {player.position.split(",").map((position, index) => (<span key={index} className={`inline-flex text-xs px-2 py-1 rounded-full border ${roleColor} font-medium capitalize`}>
+                {position || 'Player'}
+              </span>))}
+            </div>
           </td>
 
           {/* Base Price */}
@@ -201,7 +229,7 @@ const PlayersList = () => {
 
     return (
       <div className="fixed inset-0 bg-opacity-60 flex items-center justify-center z-50 p-2 sm:p-4 backdrop-blur-sm">
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-full sm:max-w-6xl max-h-[90vh] overflow-hidden mx-2">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-full sm:max-w-6xl h-[90vh] overflow-hidden mx-2">
           {/* Header */}
           <div className={`p-4 sm:p-6 text-white ${statusConfig.class}`}>
             <div className="flex justify-between items-center">
@@ -234,15 +262,27 @@ const PlayersList = () => {
             </div>
           </div>
 
+          <div className='flex flex-col sm:flex-row items-center justify-center gap-4 pt-3'>
+            <input type="text" placeholder='Search by Username' className='border-gray-300 rounded-md border text-sm px-4 py-2' onChange={e => setSearchQuery(e.target.value)} value={searchQuery} autoFocus />
+            <select className='bg-linear-to-r text-gray-700 border border-gray-300 rounded-md font-semibold px-4 py-1 cursor-pointer' onChange={e => { setFilterPosition(e.target.value) }} value={filterPosition}>
+              <option value="">All</option>
+              <option value="setter">Setter</option>
+              <option value="rw">Right Wing</option>
+              <option value="lw">Left Wing</option>
+              <option value="ts">Third Spiker</option>
+              <option value="libero">Libero</option>
+              <option value="br">Backrow</option>
+            </select>
+          </div>
           {/* Table Container with Horizontal Scroll */}
-          <div className="p-2 sm:p-6 overflow-auto max-h-[calc(90vh-120px)]">
+          <div className="p-2 sm:p-6 overflow-auto h-[calc(90vh-170px)] sm:h-[calc(90vh-200px)] flex-1">
             {players.length > 0 ? (
               <div className="border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <TableHeader />
                     <tbody className="divide-y divide-gray-200">
-                      {players.map((player, index) => (
+                      {filteredPlayers.map((player, index) => (
                         <TableRow key={player._id} player={player} index={index} />
                       ))}
                     </tbody>
@@ -267,7 +307,7 @@ const PlayersList = () => {
           {/* Footer Stats */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-200">
             <div className="flex justify-between items-center text-xs sm:text-sm text-gray-600">
-              <span>Showing {players.length} player{players.length !== 1 ? 's' : ''}</span>
+              <span>Showing {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''}</span>
               {status === 'sold' && (
                 <span className="font-semibold">
                   Total: ${players.reduce((sum, player) => sum + (player.soldPrice || 0), 0).toLocaleString()}
@@ -357,6 +397,8 @@ const PlayersList = () => {
           onClose={() => setSelectedStatus(null)}
         />
       )}
+
+
     </div>
   );
 };

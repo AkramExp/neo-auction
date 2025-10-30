@@ -1,3 +1,4 @@
+// ...existing code...
 import React, { useState, useEffect } from 'react';
 import { useAuction } from '../context/AuctionContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -63,23 +64,20 @@ const BiddingInterface = () => {
   const handleBid = () => {
     if (!bidAmount || !myTeam || hasPassed) return;
 
-    const amount = parseInt(bidAmount);
+    const amount = parseInt(bidAmount, 10);
 
     if (amount > myTeam.budget) {
       toast.error('Bid amount exceeds your budget')
-      // showPopup('error', 'Bid amount exceeds your budget');
       return;
     }
 
     if (isFirstBid && amount !== currentPlayer.basePrice) {
-      // showPopup('error', `}`);
       toast.error(`First bid must be exactly at base price: $${currentPlayer.basePrice.toLocaleString()}`)
       return;
     }
 
     if (!isFirstBid && amount <= currentBid) {
       toast.error('Bid must be higher than current bid')
-      // showPopup('error', 'Bid must be higher than current bid');
       return;
     }
 
@@ -89,8 +87,6 @@ const BiddingInterface = () => {
     });
 
     setBidAmount('');
-
-    // showPopup('success', 'Bid placed successfully!');
   };
 
   const handlePass = () => {
@@ -127,6 +123,10 @@ const BiddingInterface = () => {
       currentBid + 1500,
       currentBid + 2000
     ].filter(amount => amount <= (myTeam?.budget || 0));
+
+  // Parse bid amount and compute remaining budget for display
+  const parsedBidAmount = parseInt(bidAmount, 10) || 0;
+  const remainingBudget = myTeam ? Math.max(myTeam.budget - parsedBidAmount, 0) : 0;
 
   // Don't show if no team, auction not running, or no player
   if (!myTeam || auctionState?.status !== 'running' || !auctionState?.currentPlayer) {
@@ -279,7 +279,7 @@ const BiddingInterface = () => {
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               <div className="flex-1 w-full">
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 -top-7 left-0 pl-5 flex items-center pointer-events-none">
                     <span className="text-gray-500 font-bold">$</span>
                   </div>
                   <input
@@ -294,6 +294,16 @@ const BiddingInterface = () => {
                     min={isFirstBid ? currentPlayer.basePrice : currentBid + 100}
                     max={myTeam.budget}
                   />
+
+                  {/* Remaining budget display */}
+                  <div className="mt-2 text-sm">
+                    <span className="text-gray-600">
+                      Remaining Budget:
+                      <span className={`font-semibold ml-2 ${parsedBidAmount > myTeam.budget ? 'text-red-600' : 'text-green-600'}`}>
+                        ${remainingBudget.toLocaleString()}
+                      </span>
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -302,9 +312,10 @@ const BiddingInterface = () => {
                   onClick={handleBid}
                   disabled={
                     !bidAmount ||
-                    parseInt(bidAmount) > myTeam.budget ||
-                    (isFirstBid && parseInt(bidAmount) !== currentPlayer.basePrice) ||
-                    (!isFirstBid && parseInt(bidAmount) <= currentBid) || (!isFirstBid && bidAmount < currentBid + 100)
+                    parsedBidAmount > myTeam.budget ||
+                    (isFirstBid && parsedBidAmount !== currentPlayer.basePrice) ||
+                    (!isFirstBid && parsedBidAmount <= currentBid) ||
+                    (!isFirstBid && parsedBidAmount < currentBid + 100)
                   }
                   className="bg-linear-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-xl font-semibold text-sm hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
                 >
@@ -324,6 +335,7 @@ const BiddingInterface = () => {
           {/* Quick Bid Buttons */}
           {suggestedBids.length > 0 && (
             <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+              <h3 className='text-base text-blue-600 font-semibold mb-2 pl-2'>Quick Bids</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {suggestedBids.map(amount => (
                   <button

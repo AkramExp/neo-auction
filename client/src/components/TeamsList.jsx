@@ -109,7 +109,14 @@ const TeamsList = () => {
                       </div>
                       <div>
                         <span className="font-semibold text-gray-900 block">{player.name}</span>
-                        <span className="text-xs text-gray-500 capitalize">{player.position || 'Player'}</span>
+                        <div className='mt-2 flex items-center gap-2'>
+                          {player.position.split(",").map((position, index) => (
+                            <span key={index} className="inline-flex text-xs px-2 py-1 rounded-full border bg-gray-100 text-gray-800 border-gray-200 font-medium capitalize">
+                              {position || 'Player'}
+                            </span>
+                          ))}
+                        </div>
+                        {/* <span className="text-xs text-gray-500 capitalize">{player.position || 'Player'}</span> */}
                       </div>
                     </div>
                     <span className="bg-linear-to-r from-green-500 to-emerald-600 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-sm">

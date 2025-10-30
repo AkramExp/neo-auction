@@ -130,7 +130,7 @@ const AuctionBlock = () => {
         {/* Player Card */}
         <div className="bg-white p-3 rounded-lg md:rounded-xl flex items-center justify-between col-span-1 xs:col-span-2 lg:col-span-1">
           <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
-            <div className="hidden w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg md:rounded-xl sm:flex items-center justify-center shadow-md flex-shrink-0">
+            <div className="hidden w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg md:rounded-xl sm:flex items-center justify-center shadow-md shrink-0">
               <span className="text-white font-bold text-base md:text-lg">
                 {currentPlayer?.name?.charAt(0).toUpperCase()}
               </span>
@@ -138,9 +138,12 @@ const AuctionBlock = () => {
             <div className="min-w-0 flex-1">
               <h3 className="text-base md:text-lg font-bold text-gray-900 truncate">{currentPlayer?.name}</h3>
               <div className="flex items-center space-x-1 md:space-x-2 mt-1">
-                <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                  {currentPlayer?.position}
-                </span>
+                <div className='flex items-center gap-2'>
+                  {currentPlayer?.position.split(",").map((position, index) => <span key={index} className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                    {position}
+                  </span>)}
+                </div>
+
                 <span className="bg-green-200 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
                   ${currentPlayer?.basePrice?.toLocaleString()}
                 </span>
