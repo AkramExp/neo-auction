@@ -136,7 +136,7 @@ const AuctionBlock = () => {
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-base md:text-lg font-bold text-gray-900 truncate">{currentPlayer?.name}</h3>
+              <h3 className="text-base md:text-lg font-bold text-gray-900 truncate">{currentPlayer?.name} <span className='text-sm text-gray-600 font-semibold'>( {currentPlayer?.username} )</span></h3>
               <div className="flex items-center space-x-1 md:space-x-2 mt-1">
                 <div className='flex items-center gap-2'>
                   {currentPlayer?.position.split(",").map((position, index) => <span key={index} className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">

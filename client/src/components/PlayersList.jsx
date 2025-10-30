@@ -125,7 +125,7 @@ const PlayersList = () => {
     const [filteredPlayers, setFilteredPlayers] = useState(players || []);
 
     useEffect(() => {
-      const newPlayers = players.filter(player => player.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      const newPlayers = players.filter(player => (player.name.toLowerCase().includes(searchQuery.toLowerCase()) || player.username.toLowerCase().includes(searchQuery.toLowerCase())));
 
       let filterPlayers = newPlayers;
 
@@ -180,7 +180,7 @@ const PlayersList = () => {
         <tr className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
           {/* Player Name */}
           <td className="px-4 py-3 whitespace-nowrap min-w-[120px]">
-            <div className="text-sm font-semibold text-gray-900">{player.name}</div>
+            <div className="text-sm font-semibold text-gray-900">{player.name} <span className='text-gray-700 font-normal'>( {player.username} )</span></div>
           </td>
 
           {/* Position */}
