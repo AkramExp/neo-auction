@@ -27,7 +27,7 @@ const HomePage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div>
-                            <h1 className="md:text-2xl font-bold bg-linear-to-r from-orange-800 to-blue-800 bg-clip-text text-transparent">Neo League Auction</h1>
+                            <h1 className="md:text-2xl font-bold bg-linear-to-r from-orange-800 to-blue-800 bg-clip-text text-transparent">Neo League</h1>
                             <p className="text-sm font-semibold text-gray-600">Spectator Mode</p>
                         </div>
 
