@@ -27,7 +27,7 @@ const AuctionBlock = () => {
           <div className="text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-green-800 mb-3 md:mb-4">Player Sold!</h2>
 
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-green-200 mb-4 md:mb-6">
+            <div className="bg-linear-to-r from-green-50 to-emerald-50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-green-200 mb-4 md:mb-6">
               <p className="text-lg md:text-xl text-green-700 mb-3 md:mb-4">
                 <span className="font-bold text-xl md:text-2xl block md:inline">{soldPlayer?.name}</span>
                 <span className="hidden md:inline"> has been acquired by </span>
@@ -59,7 +59,7 @@ const AuctionBlock = () => {
           <div className="text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-yellow-800 mb-3 md:mb-4">Player Goes Unsold</h2>
 
-            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-yellow-200 mb-4 md:mb-6">
+            <div className="bg-linear-to-r from-yellow-50 to-amber-50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-yellow-200 mb-4 md:mb-6">
               <p className="text-lg md:text-xl text-yellow-700 mb-3">
                 <span className="font-bold text-xl md:text-2xl block">{unsoldPlayer?.name}</span>
                 <span className="text-base md:text-lg mt-1 block">did not receive any qualifying bids</span>
@@ -120,17 +120,17 @@ const AuctionBlock = () => {
             <p className="text-lg md:text-xl font-bold text-gray-900">Live bidding</p>
           </div>
         </div>
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-2 md:px-3 py-1 rounded-full text-xs font-semibold">
+        <div className="bg-linear-to-r from-green-500 to-emerald-600 text-white px-2 md:px-3 py-1 rounded-full text-xs font-semibold">
           Active
         </div>
       </div>
 
       {/* Player Info */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg md:rounded-xl p-3 md:p-4 border border-blue-200 mb-3 md:mb-4">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-lg md:rounded-xl p-3 md:p-4 border border-blue-200 mb-3 md:mb-4">
         {/* Player Card */}
         <div className="bg-white p-3 rounded-lg md:rounded-xl flex items-center justify-between col-span-1 xs:col-span-2 lg:col-span-1">
           <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
-            <div className="hidden w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg md:rounded-xl sm:flex items-center justify-center shadow-md shrink-0">
+            <div className="hidden w-10 h-10 md:w-12 md:h-12 bg-linear-to-r from-blue-600 to-purple-700 rounded-lg md:rounded-xl sm:flex items-center justify-center shadow-md shrink-0">
               <span className="text-white font-bold text-base md:text-lg">
                 {currentPlayer?.name?.charAt(0).toUpperCase()}
               </span>
@@ -152,14 +152,14 @@ const AuctionBlock = () => {
           </div>
 
           {isFirstBid && (
-            <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-2 md:px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ml-2">
+            <span className="bg-linear-to-r from-green-500 to-emerald-600 text-white px-2 md:px-3 py-1 rounded-full text-xs font-semibold shrink-0 ml-2">
               First Bid
             </span>
           )}
         </div>
 
         {/* Current Bid */}
-        <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg md:rounded-xl p-2 md:p-3 border border-green-200 text-center">
+        <div className="bg-linear-to-br from-green-50 to-emerald-100 rounded-lg md:rounded-xl p-2 md:p-3 border border-green-200 text-center">
           <p className="text-green-700 text-xs md:text-sm font-semibold mb-1">Current Bid</p>
           <p className="text-lg md:text-xl font-bold text-green-800">${auctionState.currentBid?.toLocaleString()}</p>
           {isFirstBid && (
@@ -168,14 +168,14 @@ const AuctionBlock = () => {
         </div>
 
         {/* Highest Bidder */}
-        <div className="bg-gradient-to-br from-purple-50 to-pink-100 rounded-lg md:rounded-xl p-2 md:p-3 border border-purple-200 text-center">
+        <div className="bg-linear-to-br from-purple-50 to-pink-100 rounded-lg md:rounded-xl p-2 md:p-3 border border-purple-200 text-center">
           <p className="text-purple-700 text-xs md:text-sm font-semibold mb-1">Highest Bidder</p>
           <p className="text-lg md:text-xl font-bold text-purple-800 truncate">
-            {highBidderTeam?.name || (
-              <span className="text-purple-700 text-base md:text-lg">
+            {
+              highBidderTeam?.name ? `${highBidderTeam.name} (${highBidderTeam.owner.username})` : <span className="text-purple-700 text-base md:text-lg">
                 {isFirstBid ? 'None' : 'No bids'}
               </span>
-            )}
+            }
           </p>
         </div>
       </div>
@@ -198,7 +198,7 @@ const AuctionBlock = () => {
 
       {/* First Bid Call to Action */}
       {isFirstBid && (
-        <div className="mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-2 md:p-3">
+        <div className="mt-3 bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-lg p-2 md:p-3">
           <div className="flex items-center justify-center space-x-1 md:space-x-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -210,7 +210,7 @@ const AuctionBlock = () => {
 
       {/* Timer if available */}
       {auctionState.timer > 0 && (
-        <div className="mt-3 bg-gradient-to-br from-orange-50 to-red-100 rounded-lg p-2 md:p-3 border border-orange-200 text-center">
+        <div className="mt-3 bg-linear-to-br from-orange-50 to-red-100 rounded-lg p-2 md:p-3 border border-orange-200 text-center">
           <p className="text-orange-700 text-xs font-semibold mb-1">Time Remaining</p>
           <p className="text-base md:text-lg font-bold text-orange-800">{auctionState.timer}s</p>
         </div>
