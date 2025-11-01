@@ -62,10 +62,7 @@ const PlayersList = () => {
 
   const handleRelistPlayer = (playerId, playerName) => {
     if (!user || user.role !== 'admin') return;
-
-    if (window.confirm(`Relist ${playerName} for auction?`)) {
-      socket.emit('admin:relistPlayer', { playerId });
-    }
+    socket.emit('admin:relistPlayer', { playerId });
   };
 
   const getRoleColor = (position) => {
@@ -216,7 +213,7 @@ const PlayersList = () => {
             <td className="px-4 py-3 whitespace-nowrap min-w-[100px]">
               <button
                 onClick={() => handleRelistPlayer(player._id, player.name)}
-                className="bg-linear-to-r from-purple-500 to-pink-600 text-white py-1 px-3 rounded-lg text-xs font-semibold hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                className="bg-linear-to-r from-purple-500 to-pink-600 text-white py-2 px-4 rounded-lg text-xs font-semibold hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
                 Relist
               </button>
