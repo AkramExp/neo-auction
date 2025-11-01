@@ -1,6 +1,9 @@
 import AuctionState from '../models/AuctionState.model.js';
+import BiddingHistoryModel from '../models/BiddingHistory.model.js';
 import Player from '../models/Player.model.js';
 import Team from '../models/Team.model.js';
+import bcrypt from "bcrypt";
+import User from '../models/User.model.js';
 
 const auctionHandler = (io) => {
     io.on('connection', (socket) => {
@@ -101,6 +104,13 @@ const auctionHandler = (io) => {
                 player.boughtBy = auctionState.highBidder._id;
                 await player.save();
 
+                await BiddingHistoryModel.create({
+                    playerId: player._id,
+                    teamId: auctionState.highBidder._id,
+                    amount: auctionState.currentBid,
+                    status: 'sold'
+                })
+
                 // Update team
                 team.budget -= auctionState.currentBid;
                 team.players.push(player._id);
@@ -161,6 +171,11 @@ const auctionHandler = (io) => {
                 const player = await Player.findById(auctionState.currentPlayer._id);
                 player.status = 'unsold';
                 await player.save();
+
+                await BiddingHistoryModel.create({
+                    playerId: player._id,
+                    status: 'unsold'
+                })
 
                 // Store last action before clearing auction state
                 auctionState.lastAction = {
@@ -253,6 +268,13 @@ const auctionHandler = (io) => {
                 auctionState.currentBid = amount;
                 auctionState.highBidder = teamId;
 
+                await BiddingHistoryModel.create({
+                    playerId: currentPlayer._id,
+                    teamId: teamId,
+                    amount: amount,
+                    status: 'ongoing'
+                })
+
                 // Add to bid history
                 auctionState.bidHistory.push({
                     team: teamId,
@@ -336,8 +358,8 @@ const auctionHandler = (io) => {
 
         socket.on('admin:createPlayer', async (data) => {
             try {
-                const { name, position, basePrice } = data;
-                const player = await Player.create({ name, position, basePrice, status: 'upcoming' });
+                const { name, position, basePrice, username } = data;
+                const player = await Player.create({ name, username, position, basePrice, status: 'upcoming' });
 
                 const updatedPlayers = await Player.find();
 
@@ -391,21 +413,37 @@ const auctionHandler = (io) => {
                     return;
                 }
 
-                if (player.status === 'sold') {
-                    socket.emit('auction:error', 'Cannot delete a sold player');
-                    return;
+                let teamToUpdate = null;
+
+                // If player is sold, restore the team's budget
+                if (player.status === 'sold' && player.boughtBy) {
+                    teamToUpdate = await Team.findById(player.boughtBy);
+                    if (teamToUpdate) {
+                        // Restore the budget by adding back the sold price
+                        teamToUpdate.budget += player.soldPrice;
+
+                        // Remove player from team's players array
+                        teamToUpdate.players = teamToUpdate.players.filter(
+                            pId => pId.toString() !== playerId.toString()
+                        );
+
+                        await teamToUpdate.save();
+                    }
                 }
 
+                // Delete the player
                 await Player.findByIdAndDelete(playerId);
 
                 const updatedPlayers = await Player.find();
+                const updatedTeams = await Team.find().populate('owner');
 
                 io.to('auctionRoom').emit('auction:playerDeleted', {
                     playerId,
-                    players: updatedPlayers
+                    players: updatedPlayers,
+                    teams: updatedTeams // Send updated teams list to update budgets
                 });
 
-                console.log(`Deleted player: ${player.name}`);
+                console.log(`Deleted player: ${player.name}${teamToUpdate ? ` and restored budget to team ${teamToUpdate.name}` : ''}`);
             } catch (error) {
                 console.error('Error deleting player:', error);
                 socket.emit('auction:error', 'Failed to delete player: ' + error.message);
@@ -415,11 +453,11 @@ const auctionHandler = (io) => {
         // Team Management Events
         socket.on('admin:createTeam', async (data) => {
             try {
-                const { name, budget } = data;
+                const { name, ownerName, password, budget } = data;
 
                 // Create owner user
-                const ownerPassword = await bcrypt.hash('password123', 12);
-                const ownerUsername = `owner_${name.toLowerCase().replace(/\s+/g, '')}`;
+                const ownerPassword = await bcrypt.hash(password, 12);
+                const ownerUsername = `${ownerName.toLowerCase().replace(/\s+/g, '')}`;
 
                 const ownerUser = await User.create({
                     username: ownerUsername,
@@ -490,6 +528,21 @@ const auctionHandler = (io) => {
                     return;
                 }
 
+                // Move all players of this team back to upcoming status
+                await Player.updateMany(
+                    {
+                        boughtBy: teamId,
+                        status: 'sold'
+                    },
+                    {
+                        $set: {
+                            status: 'upcoming',
+                            soldPrice: undefined,
+                            boughtBy: undefined
+                        }
+                    }
+                );
+
                 // Delete the owner user
                 await User.findByIdAndDelete(team.owner._id);
 
@@ -497,13 +550,16 @@ const auctionHandler = (io) => {
                 await Team.findByIdAndDelete(teamId);
 
                 const updatedTeams = await Team.find().populate('owner');
+                const updatedPlayers = await Player.find();
+
 
                 io.to('auctionRoom').emit('auction:teamDeleted', {
                     teamId,
-                    teams: updatedTeams
+                    teams: updatedTeams,
+                    players: updatedPlayers
                 });
 
-                console.log(`Deleted team: ${team.name}`);
+                console.log(`Deleted team: ${team.name} and moved players to upcoming`);
             } catch (error) {
                 console.error('Error deleting team:', error);
                 socket.emit('auction:error', 'Failed to delete team: ' + error.message);

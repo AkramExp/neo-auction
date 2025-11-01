@@ -180,7 +180,7 @@ const PlayersList = () => {
         <tr className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
           {/* Player Name */}
           <td className="px-4 py-3 whitespace-nowrap min-w-[120px]">
-            <div className="text-sm font-semibold text-gray-900">{player.name} <span className='text-gray-700 font-normal'>( {player.username} )</span></div>
+            <div className="text-sm font-semibold text-gray-900">{player.name} <span className='text-gray-700 font-normal'>( @{player.username} )</span></div>
           </td>
 
           {/* Position */}

@@ -8,6 +8,7 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import auctionHandler from './socket/auctionHandler.js';
+import BiddingHistoryModel from './models/BiddingHistory.model.js';
 
 dotenv.config();
 
@@ -42,6 +43,18 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+
+
+app.get('/api/bidding/bidding-history', async (req, res) => {
+    try {
+        const biddingHistory = await BiddingHistoryModel.find().sort({ createdAt: -1 }).populate('playerId teamId');
+
+        res.status(200).json({ biddingHistory });
+    } catch (error) {
+        console.log("histy errr", error)
+        res.status(500).json({ message: 'Failed to fetch history' });
+    }
+})
 
 // Health check route
 app.get('/api/health', (req, res) => {

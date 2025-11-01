@@ -13,6 +13,8 @@ const TeamManagement = () => {
     const [editingTeam, setEditingTeam] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
+        ownerName: '',
+        password: '',
         budget: '3000000'
     });
 
@@ -22,7 +24,12 @@ const TeamManagement = () => {
 
     const handleAddTeam = () => {
         setEditingTeam(null);
-        setFormData({ name: '', budget: '3000000' });
+        setFormData({
+            name: '',
+            ownerName: '',
+            password: '',
+            budget: '3000000'
+        });
         setShowForm(true);
     };
 
@@ -30,6 +37,8 @@ const TeamManagement = () => {
         setEditingTeam(team);
         setFormData({
             name: team.name,
+            ownerName: team.owner?.username || '',
+            password: '', // Don't pre-fill password for security
             budget: team.budget.toString()
         });
         setShowForm(true);
@@ -44,15 +53,27 @@ const TeamManagement = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.budget) {
-            alert('Please fill in all fields');
+        if (!formData.name || !formData.ownerName || !formData.budget) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        // For new teams, require password
+        if (!editingTeam && !formData.password) {
+            alert('Please set a password for the team owner');
             return;
         }
 
         const teamData = {
             name: formData.name,
+            ownerName: formData.ownerName,
             budget: parseInt(formData.budget)
         };
+
+        // Only include password if it's provided (for new teams or when updating)
+        if (formData.password) {
+            teamData.password = formData.password;
+        }
 
         if (editingTeam) {
             socket.emit('admin:updateTeam', {
@@ -64,22 +85,32 @@ const TeamManagement = () => {
         }
 
         setShowForm(false);
-        setFormData({ name: '', budget: '3000000' });
+        setFormData({
+            name: '',
+            ownerName: '',
+            password: '',
+            budget: '3000000'
+        });
         setEditingTeam(null);
     };
 
     const handleCancel = () => {
         setShowForm(false);
-        setFormData({ name: '', budget: '3000000' });
+        setFormData({
+            name: '',
+            ownerName: '',
+            password: '',
+            budget: '3000000'
+        });
         setEditingTeam(null);
     };
 
     const getTeamPlayers = (teamId) => {
-        return players.filter(player => player.boughtBy === teamId);
+        return players?.filter(player => player.boughtBy === teamId);
     };
 
     const calculateTotalSpent = (teamPlayers) => {
-        return teamPlayers.reduce((total, player) => total + (player.soldPrice || 0), 0);
+        return teamPlayers?.reduce((total, player) => total + (player.soldPrice || 0), 0);
     };
 
     return (
@@ -102,12 +133,10 @@ const TeamManagement = () => {
             {showForm && (
                 <div className="mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
                     <div className="flex items-center space-x-3 mb-4">
-
                         <div>
                             <h4 className="font-bold text-gray-900 text-lg">
                                 {editingTeam ? 'Edit Team' : 'Add New Team'}
                             </h4>
-
                         </div>
                     </div>
 
@@ -115,27 +144,58 @@ const TeamManagement = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Team Name
+                                    Team Name *
                                 </label>
                                 <input
                                     type="text"
                                     placeholder="Enter team name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     required
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Budget ($)
+                                    Team Owner Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter owner's username"
+                                    value={formData.ownerName}
+                                    onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    {editingTeam ? 'New Password (leave blank to keep current)' : 'Team Password *'}
+                                </label>
+                                <input
+                                    type="password"
+                                    placeholder={editingTeam ? "Enter new password" : "Set team password"}
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    required={!editingTeam}
+                                />
+                                {editingTeam && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Only enter a password if you want to change it
+                                    </p>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Budget ($) *
                                 </label>
                                 <input
                                     type="number"
                                     placeholder="Enter budget amount"
                                     value={formData.budget}
                                     onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    className="w-full border-2 border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                     min="0"
                                     required
                                 />
@@ -173,11 +233,6 @@ const TeamManagement = () => {
                             {/* Team Header */}
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center space-x-3">
-                                    {/* <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl flex items-center justify-center shadow-md">
-                                        <span className="text-white font-bold text-lg">
-                                            {team.name.charAt(0).toUpperCase()}
-                                        </span>
-                                    </div> */}
                                     <div>
                                         <h4 className="font-bold text-gray-900 text-lg">{team.name}</h4>
                                         <p className="text-gray-600 text-sm">
@@ -206,7 +261,7 @@ const TeamManagement = () => {
                                 <div className="text-center bg-white rounded-lg p-2 border border-gray-200">
                                     <p className="text-gray-600 text-xs font-medium mb-1">Remaining Budget</p>
                                     <p className={`font-bold text-lg text-green-600`}>
-                                        ${team.budget.toLocaleString()}
+                                        ${remainingBudget.toLocaleString()}
                                     </p>
                                 </div>
                                 <div className="text-center bg-white rounded-lg p-2 border border-gray-200">
@@ -215,35 +270,7 @@ const TeamManagement = () => {
                                 </div>
                             </div>
 
-                            {/* Players Section */}
-                            {/* <div className="border-t border-gray-200 pt-3">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h5 className="font-semibold text-gray-700 text-sm">Acquired Players</h5>
-                                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
-                                        {teamPlayers.length}/8
-                                    </span>
-                                </div>
-
-                                {teamPlayers.length > 0 ? (
-                                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                                        {teamPlayers.map(player => (
-                                            <div key={player._id} className="flex justify-between items-center bg-white rounded-lg p-2 border border-gray-200">
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-gray-900 text-sm font-medium truncate">{player.name}</p>
-                                                    <p className="text-gray-500 text-xs">{player.position}</p>
-                                                </div>
-                                                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-semibold whitespace-nowrap">
-                                                    ${player.soldPrice?.toLocaleString()}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-3 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                                        <p className="text-gray-500 text-sm">No players acquired yet</p>
-                                    </div>
-                                )}
-                            </div> */}
+                            {/* Players Section (commented out as in original) */}
                         </div>
                     );
                 })}

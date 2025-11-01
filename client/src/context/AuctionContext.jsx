@@ -17,19 +17,30 @@ const auctionReducer = (state, action) => {
   switch (action.type) {
     case 'PLAYER_CREATED':
     case 'PLAYER_UPDATED':
-    case 'PLAYER_DELETED':
       return {
         ...state,
         players: action.payload.players,
         error: null
       };
-
+    case 'PLAYER_DELETED':
+      return {
+        ...state,
+        players: action.payload.players,
+        teams: action.payload.teams,
+        error: null
+      };
     case 'TEAM_CREATED':
     case 'TEAM_UPDATED':
+      return {
+        ...state,
+        teams: action.payload.teams,
+        error: null
+      };
     case 'TEAM_DELETED':
       return {
         ...state,
         teams: action.payload.teams,
+        players: action.payload.players,
         error: null
       };
     case 'SET_LOADING':

@@ -19,8 +19,8 @@ const AdminControls = () => {
   const [activeTab, setActiveTab] = useState('auction');
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
 
-  const upcomingPlayers = players.filter(p => p.status === 'upcoming');
-  const unsoldPlayers = players.filter(p => p.status === 'unsold');
+  const upcomingPlayers = players?.filter(p => p.status === 'upcoming');
+  const unsoldPlayers = players?.filter(p => p.status === 'unsold');
   const hasActivePlayer = !!auctionState?.currentPlayer;
   const hasBids = auctionState?.highBidder !== null && auctionState?.highBidder !== undefined;
 

@@ -13,6 +13,7 @@ const PlayerManagement = () => {
     const [selectedPositions, setSelectedPositions] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
+        username: '',
         basePrice: ''
     });
 
@@ -30,7 +31,7 @@ const PlayerManagement = () => {
 
     const handleAddPlayer = () => {
         setEditingPlayer(null);
-        setFormData({ name: '', basePrice: '' });
+        setFormData({ name: '', username: '', basePrice: '' });
         setSelectedPositions([]);
         setShowForm(true);
     };
@@ -39,6 +40,7 @@ const PlayerManagement = () => {
         setEditingPlayer(player);
         setFormData({
             name: player.name,
+            username: player.username || '',
             basePrice: player.basePrice.toString()
         });
         // Convert position string back to array
@@ -66,7 +68,8 @@ const PlayerManagement = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.name || selectedPositions.length === 0 || !formData.basePrice) {
+        console.log(formData)
+        if (!formData.name || !formData.username || selectedPositions.length === 0 || !formData.basePrice) {
             alert('Please fill in all fields');
             return;
         }
@@ -76,6 +79,7 @@ const PlayerManagement = () => {
 
         const playerData = {
             name: formData.name,
+            username: formData.username,
             position: positionString,
             basePrice: parseInt(formData.basePrice)
         };
@@ -90,14 +94,14 @@ const PlayerManagement = () => {
         }
 
         setShowForm(false);
-        setFormData({ name: '', basePrice: '' });
+        setFormData({ name: '', username: '', basePrice: '' });
         setSelectedPositions([]);
         setEditingPlayer(null);
     };
 
     const handleCancel = () => {
         setShowForm(false);
-        setFormData({ name: '', basePrice: '' });
+        setFormData({ name: '', username: '', basePrice: '' });
         setSelectedPositions([]);
         setEditingPlayer(null);
     };
@@ -114,27 +118,26 @@ const PlayerManagement = () => {
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     };
 
-
     const getStatusConfig = (status) => {
         switch (status) {
             case 'sold':
                 return {
-                    class: 'bg-linear-to-br from-green-500 to-emerald-600 text-white',
+                    class: 'bg-gradient-to-br from-green-500 to-emerald-600 text-white',
                     icon: '✅'
                 };
             case 'unsold':
                 return {
-                    class: 'bg-linear-to-br from-red-500 to-pink-600 text-white',
+                    class: 'bg-gradient-to-br from-red-500 to-pink-600 text-white',
                     icon: '⏹️'
                 };
             case 'upcoming':
                 return {
-                    class: 'bg-linear-to-br from-blue-500 to-cyan-600 text-white',
+                    class: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
                     icon: '⏳'
                 };
             default:
                 return {
-                    class: 'bg-linear-to-br from-gray-500 to-gray-600 text-white',
+                    class: 'bg-gradient-to-br from-gray-500 to-gray-600 text-white',
                     icon: '❓'
                 };
         }
@@ -150,7 +153,7 @@ const PlayerManagement = () => {
                 </div>
                 <button
                     onClick={handleAddPlayer}
-                    className="bg-linear-to-br from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+                    className="bg-gradient-to-br from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                 >
                     Add New Player
                 </button>
@@ -158,7 +161,7 @@ const PlayerManagement = () => {
 
             {/* Add/Edit Player Form */}
             {showForm && (
-                <div className="mb-8 bg-linear-to-brs from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                <div className="mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
                     <div className="flex items-center space-x-3 mb-4">
                         <div>
                             <h4 className="font-bold text-gray-900 text-lg">
@@ -171,10 +174,10 @@ const PlayerManagement = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Player Name
+                                    Player Name *
                                 </label>
                                 <input
                                     type="text"
@@ -185,31 +188,22 @@ const PlayerManagement = () => {
                                     required
                                 />
                             </div>
-                            <div className="">
+                            <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Position(s)
+                                    Discord Username *
                                 </label>
-                                <div className="space-y-3">
-                                    <div className="flex flex-wrap gap-2 items-center">
-                                        {positionOptions.map((position) => (
-                                            <button
-                                                key={position.value}
-                                                type="button"
-                                                onClick={() => handlePositionChange(position.value)}
-                                                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 hover:scale-105 cursor-pointer border ${selectedPositions.includes(position.value)
-                                                    ? 'bg-linear-to-br from-blue-500 to-purple-600 text-white border-transparent shadow-lg'
-                                                    : 'bg-white text-zinc-800 border-gray-300 hover:border-blue-500 hover:shadow-md'
-                                                    }`}
-                                            >
-                                                {position.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Enter Discord username"
+                                    value={formData.username}
+                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                    className="w-full border bg-white border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                    required
+                                />
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Base Price ($)
+                                    Base Price ($) *
                                 </label>
                                 <input
                                     type="number"
@@ -222,17 +216,45 @@ const PlayerManagement = () => {
                                 />
                             </div>
                         </div>
+
+                        {/* Position Selection */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Position(s) *
+                            </label>
+                            <div className="space-y-3">
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    {positionOptions.map((position) => (
+                                        <button
+                                            key={position.value}
+                                            type="button"
+                                            onClick={() => handlePositionChange(position.value)}
+                                            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 hover:scale-105 cursor-pointer border ${selectedPositions.includes(position.value)
+                                                ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white border-transparent shadow-lg'
+                                                : 'bg-white text-zinc-800 border-gray-300 hover:border-blue-500 hover:shadow-md'
+                                                }`}
+                                        >
+                                            {position.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                {selectedPositions.length === 0 && (
+                                    <p className="text-red-500 text-xs">Please select at least one position</p>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="flex space-x-3">
                             <button
                                 type="submit"
-                                className="bg-linear-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+                                className="bg-gradient-to-br from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                             >
                                 {editingPlayer ? 'Update Player' : 'Add Player'}
                             </button>
                             <button
                                 type="button"
                                 onClick={handleCancel}
-                                className="bg-linear-to-br from-gray-500 to-gray-600 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+                                className="bg-gradient-to-br from-gray-500 to-gray-600 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                             >
                                 Cancel
                             </button>
@@ -247,7 +269,7 @@ const PlayerManagement = () => {
                     const statusConfig = getStatusConfig(status);
 
                     return (
-                        <div key={status} className="bg-linear-to-brs from-gray-50 to-white rounded-2xl p-6 border border-gray-200 max-h-80 overflow-y-auto">
+                        <div key={status} className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 max-h-80 overflow-y-auto">
                             {/* Section Header */}
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center space-x-3">
@@ -276,6 +298,7 @@ const PlayerManagement = () => {
                                                 <div className="flex justify-between items-start mb-3">
                                                     <div>
                                                         <h5 className="font-bold text-gray-900 text-lg">{player.name}</h5>
+                                                        <p className="text-gray-500 text-sm">@{player.username}</p>
                                                     </div>
                                                     <p className="text-gray-600 text-sm">{player.position}</p>
                                                 </div>
@@ -300,19 +323,16 @@ const PlayerManagement = () => {
                                                         onClick={() => handleEditPlayer(player)}
                                                         disabled={!canEditDelete}
                                                         className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 cursor-pointer ${canEditDelete
-                                                            ? 'bg-linear-to-br from-yellow-500 to-amber-600 text-white hover:shadow-lg'
+                                                            ? 'bg-gradient-to-br from-yellow-500 to-amber-600 text-white hover:shadow-lg'
                                                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                             }`}
                                                     >
                                                         Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDeletePlayer(player._id, player.name)}
-                                                        disabled={!canEditDelete}
-                                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 cursor-pointer ${canEditDelete
-                                                            ? 'bg-linear-to-br from-red-500 to-pink-600 text-white hover:shadow-lg'
-                                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                            }`}
+                                                        onClick={() => handleDeletePlayer(player._id, player.name, player.boughtByTeam?.name)}
+                                                        // disabled={!canEditDelete}
+                                                        className={`flex-1 py-2 px-3 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-br from-red-500 to-pink-600 text-white hover:shadow-lg`}
                                                     >
                                                         Delete
                                                     </button>
