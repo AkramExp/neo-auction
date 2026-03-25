@@ -12,7 +12,7 @@ const BiddingHistory = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const response = await axios.get('https://neo-auction-1.onrender.com/api/bidding/bidding-history');
+                const response = await axios.get('https://neo-auction.onrender.com/api/bidding/bidding-history');
                 console.log(response.data.biddingHistory)
                 if (response.status === 200) {
                     setHistory(response.data.biddingHistory);
