@@ -1,5 +1,6 @@
 import Player from '../models/Player.model.js';
 import Team from '../models/Team.model.js';
+import BiddingHistory from '../models/BiddingHistory.model.js';
 
 export const getPlayers = async (req, res) => {
     try {
@@ -49,5 +50,17 @@ export const getReport = async (req, res) => {
         res.json(soldPlayers);
     } catch (error) {
         res.status(500).json({ message: 'Failed to generate report' });
+    }
+};
+
+export const getBiddingHistory = async (req, res) => {
+    try {
+        const soldPlayers = await BiddingHistory.find()
+            .populate('playerId teamId')
+            .sort({ createdAt: -1 });
+
+        res.json(soldPlayers);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch history' });
     }
 };
